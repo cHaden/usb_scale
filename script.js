@@ -22,6 +22,7 @@ function initScale() {
       // just go with the first scale listed
       chrome.hid.connect(devices[0].deviceId, function(connection) {
         document.getElementById('status').innerHTML = 'Connected to scale';
+        // console.log("Scale is totally there");
         scaleConnectionId = connection.connectionId;
         pollScale();
       });
@@ -39,17 +40,22 @@ function formatRaw(bytes) {
 }
 
 function pollScale() {
+  // console.log("Checking the scale...");
   chrome.hid.receive(scaleConnectionId, function(reportId, data) {
+    // console.log("scale reported something");
     if (reportId === 3) {
       // we have a measurement from the scale
+      // console.log("we have a measurement from the scale...");
       var bytes = new Uint8Array(data);
 
       if (document.getElementById('raw')) {
+        // console.log("we have raw data");
         document.getElementById('raw').innerHTML = formatRaw(bytes);
       }
 
       // check to make sure the scale is stable
       if (bytes[0] === 2 || bytes[0] === 4) {
+        // console.log("scale is stable");
         var unit;
 
         if (bytes[1] === 11) {
@@ -82,20 +88,59 @@ function pollScale() {
   });
 }
 
+// function reportReading() {
+//   document.getElementById('reading').innerHTML = lastReading;
+//
+//   var scaleToken = document.getElementById('scaleToken').value;
+//
+//   if (scaleToken) {
+//     var req = new XMLHttpRequest();
+//     console.log("I'm AJAXing so hard right now");
+//     // req.open('POST', scaleServerBaseUrl + '/report/' + scaleToken, true);
+//     req.open('POST', scaleServerBaseUrl, true);
+//     req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+//     req.send('reading=' + lastReading);
+//   }
+// }
+//----------- CORS helper
+function createCORSRequest(method, url, lastReading) {
+  console.log("in createCORSRequest");
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    // Check if the XMLHttpRequest object has a "withCredentials" property.
+    // "withCredentials" only exists on XMLHTTPRequest2 objects.
+    console.log("has withCredentials property");
+    xhr.open(method, url, true);
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xhr.send('reading=' + lastReading);
+  } else if (typeof XDomainRequest != "undefined") {
+    // Otherwise, check if XDomainRequest.
+    // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xhr.send('reading=' + lastReading);
+  } else {
+    // Otherwise, CORS is not supported by the browser.
+    xhr = null;
+  }
+  return xhr;
+}
+
 function reportReading() {
   document.getElementById('reading').innerHTML = lastReading;
 
   var scaleToken = document.getElementById('scaleToken').value;
 
   if (scaleToken) {
-    var req = new XMLHttpRequest();
-    // req.open('POST', scaleServerBaseUrl + '/report/' + scaleToken, true);
-    req.open('POST', scaleServerBaseUrl, true);
-    req.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    req.send('reading=' + lastReading);
+    var xhr = createCORSRequest('POST', scaleServerBaseUrl, reading);
+    if (!xhr) {
+      throw new Error('CORS not supported');
+    }
   }
 }
 
+///----------------------- end helper CORS
 function watchTokenChanges() {
   var timeout = null;
   var inputElt = document.getElementById('scaleToken');
