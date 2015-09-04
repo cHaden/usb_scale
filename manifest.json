@@ -1,0 +1,30 @@
+{
+   "app": {
+      "background": {
+         "scripts": [ "background.js" ]
+      }
+   },
+   "description": "Connects your USB digital scale to Spoonflower Shipping",
+   "icons": {
+      "256": "icon.png"
+   },
+   "manifest_version": 2,
+   "name": "ScaleTest",
+   "permissions": [ "storage", "hid", {
+      "usbDevices": [ {
+         "productId": 1360,
+         "vendorId": 9332
+      }, {
+         "productId": 61440,
+         "vendorId": 3768
+      }, {
+         "productId": 21854,
+         "vendorId": 2919
+      }, {
+        "productId": 32772,
+        "vendorId": 2338
+        } ]
+   } ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "0.3"
+}

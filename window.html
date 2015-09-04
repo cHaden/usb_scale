@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        padding: 20px;
+      }
+
+      .label {
+        margin-top: 20px;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      .label:first-child {
+        margin-top: 0;
+      }
+
+      input {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="label">Status</div>
+    <div id="status">Connecting to scale...</div>
+
+    <div class="label">Current Reading</div>
+    <div id="reading">None</div>
+
+    <div class="label">Raw reading</div>
+    <div id="raw">-</div>
+
+    <div class="label">Scale Server Token</div>
+    <div>
+      <input type="text" id="scaleToken" value="">
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
